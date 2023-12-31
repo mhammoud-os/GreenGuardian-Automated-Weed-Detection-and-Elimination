@@ -14,9 +14,9 @@ nameAdd = "gs://cloud-ai-platform-ef85cba5-03a6-46a2-8ac8-2f8fcd138294/"
 # This is needed for some reason
 ResourceLabels = {"aiplatform.googleapis.com/annotation_set_name": "6974310007122690048"}
 
-# These are the width and height of the images
-width = 416
-height = 416
+# These are the width and height of the images it is different for each data set
+width = 640
+height = 640
 
 newData = []
 
@@ -35,14 +35,24 @@ for i in fileData:
         w = j["coordinates"]["width"]
         h = j["coordinates"]["height"]
         # (xmin, ymin) and (xMax, yMax) represent the coordinates of the two corners of the rectangle
-        xMin = (x - w / 2) / width
-        yMin = (y - h / 2) / height
-        xMax = (x + w / 2) / width
-        yMax = (y + h / 2) / height
+        xMin = (x - (w / 2)) / width
+        yMin = (y - (h / 2)) / height
+        xMax = (x + (w / 2)) / width
+        yMax = (y + (h / 2)) / height
         xMin = check_out_bound(xMin)
         yMin = check_out_bound(yMin)
         xMax = check_out_bound(xMax)
         yMax = check_out_bound(yMax)
+        if xMin==xMax:
+            if xMin==0:
+                xMax+=0.001
+            else:xMin -=0.001
+        if yMin==yMax:
+            if yMin==0:
+                yMax+=0.001
+            else:yMin -=0.001
+
+
 
         line["boundingBoxAnnotations"].append(
             {"displayName": j["label"], "xMin": xMin, "xMax": xMax, "yMin": yMin, "yMax": yMax,
