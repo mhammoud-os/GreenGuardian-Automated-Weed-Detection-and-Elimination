@@ -18,6 +18,10 @@ ResourceLabels = {"aiplatform.googleapis.com/annotation_set_name": "697431000712
 width = 640
 height = 640
 
+#set to "" and nothing will change
+DisplayName = ""
+#DisplayName = "clover"
+
 newData = []
 
 def check_out_bound(data):
@@ -53,10 +57,12 @@ for i in fileData:
             else:yMin -=0.001
 
 
-
-        line["boundingBoxAnnotations"].append(
-            {"displayName": j["label"], "xMin": xMin, "xMax": xMax, "yMin": yMin, "yMax": yMax,
-             "annotationResourceLabels": ResourceLabels})
+        if DisplayName =="":
+            line["boundingBoxAnnotations"].append(
+                {"displayName": j["label"], "xMin": xMin, "xMax": xMax, "yMin": yMin, "yMax": yMax,
+                 "annotationResourceLabels": ResourceLabels})
+        else:
+            line["boundingBoxAnnotations"].append({"displayName": DisplayName, "xMin": xMin, "xMax": xMax, "yMin": yMin, "yMax": yMax,"annotationResourceLabels": ResourceLabels})
         line["dataItemResourceLabels"] = {}
     newData.append(line)
 for i in newData:
