@@ -1,36 +1,13 @@
-#This program stops when a weed is identified
-#it writest the image to a file using picam2 and them reads the file to identifie if there is a weed
-#it is very slow processing 1 frame per secound
+
 import os
 import argparse
 import cv2
 import numpy as np
 import sys
 import importlib.util
-import serial
-from picamera2 import Picamera2, Preview
+from picamera2 import Picamera2, Preview 
+
 import time
-def sendDataOverSerialPort(data):
-    ser = serial.Serial(port='/dev/ttyACM0',
-    baudrate=9600,
-    parity=serial.PARITY_NONE,
-    stopbits=serial.STOPBITS_ONE,
-    bytesize=serial.EIGHTBITS,
-    timeout=1)
-
-    if ser.isOpen():
-        try:
-            ser.flushInput()
-            ser.flushOutput()
-            ser.write(bytes(data,'iso-8859-1'))
-        except Exception as e1:
-            logMsg ='[serialPrinter]: Communication error...:' + str(e1)
-            print(logMsg)    
-
-
-
-sendDataOverSerialPort("4")
-sendDataOverSerialPort("1")
 picam2 = Picamera2()
 camera_config = picam2.create_still_configuration(main={"format": 'XRGB8888', "size": (2304, 1296)}, lores={"size": (2304, 1296)}, display="lores")
 
@@ -46,7 +23,6 @@ MODEL_NAME = 'model1'
 GRAPH_NAME = 'detect.tflite'
 LABELMAP_NAME = 'labelmap.txt'
 min_conf_threshold = 0.2
-
 # Import TensorFlow libraries
 # If tflite_runtime is installed, import interpreter from tflite_runtime, else import from regular tensorflow
 # If using Coral Edge TPU, import the load_delegate library
@@ -107,6 +83,8 @@ else: # This is a TF1 model
 
 
 while(True):
+   ## picam2.capture_file("pic.jpg")
+    ##frame = cv2.imread("pic.jpg")
     frame = picam2.capture_array()
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     frame_resized = cv2.resize(frame_rgb, (width, height))
@@ -129,13 +107,6 @@ while(True):
     for i in range(len(scores)):
         if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0)):
             print("WEED!")
-            sendDataOverSerialPort("5")
-            time.sleep(5)
-            sendDataOverSerialPort("1")
-
-            
-            """
-
             # Get bounding box coordinates and draw box
             # Interpreter can return coordinates that are outside of image dimensions, need to force them to be within image using max() and min()
             ymin = int(max(1,(boxes[i][0] * imH)))
@@ -152,9 +123,6 @@ while(True):
             label_ymin = max(ymin, labelSize[1] + 10) # Make sure not to draw label too close to top of window
             cv2.rectangle(frame, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED) # Draw white box to put label text in
             cv2.putText(frame, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2) # Draw label text
-            """
-
-"""
     # All the results have been drawn on the frame, so it's time to display it.
     cv2.imshow('Object detector', frame)
 
@@ -164,4 +132,3 @@ while(True):
 
 # Clean up
 cv2.destroyAllWindows()
-"""
