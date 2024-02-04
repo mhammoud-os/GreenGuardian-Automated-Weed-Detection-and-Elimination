@@ -1,11 +1,15 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
 #include "hardware/clocks.h"
 
 float clockDiv = 64;
 float wrap = 39062;
-int TurningPin= 0;
+int TurningPin= 14;
+
+int sprayingPin= 15;
 
 
 void setMillis(int servoPin, float millis)
@@ -15,7 +19,7 @@ void setMillis(int servoPin, float millis)
 
 void setServo(int servoPin, float startMillis)
 {
-    gpio_set_function(TurningPin, GPIO_FUNC_PWM);
+    gpio_set_function(servoPin, GPIO_FUNC_PWM);
     uint slice_num = pwm_gpio_to_slice_num(servoPin);
 
     pwm_config config = pwm_get_default_config();
@@ -37,6 +41,7 @@ void setServo(int servoPin, float startMillis)
 
 int main() {
     setServo(TurningPin, 1400);
+    setServo(sprayingPin, 1400);
 
     //Initialise I/O
     stdio_init_all();
@@ -83,7 +88,7 @@ int main() {
             printf("Moving Forward\n");
         }
         else if(userInput == '2'){
-	    setMillis(TurningPin, 2400);
+	    setMillis(TurningPin, 2200);
             printf("Turning Right\n");
         }
         else if(userInput == '3'){
@@ -108,12 +113,28 @@ int main() {
 	    gpio_put(in4, 0);
             printf("Starting Spray \n");
         }
-        else if(userInput == '5'){
+        else if(userInput == '7'){
 	    gpio_put(en2, 0);
 	    gpio_put(in3, 0);
 	    gpio_put(in4, 0);
             printf("Stoping spray \n");
         }
+	else if(userInput == '8'){
+		printf("StartPrinting out the number, press q to stop\n");
+		userInput = getchar();
+		char numberChar[50] = ""; 
+		while(userInput != 'q'){
+			char str[2] = {userInput, '\0'};
+			printf(str);
+			strcat(numberChar, str);
+			userInput = getchar();
+		}
+		char *output;
+		int number = strtol(numberChar, &output, 10);
+		setMillis(sprayingPin, number);
+		printf("Moving Sprayer\n");
+		printf(numberChar);
+	}
         else{
             printf("Invalid Input!\n");
         }
