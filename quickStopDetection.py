@@ -10,6 +10,7 @@ import importlib.util
 import serial
 from picamera2 import Picamera2, Preview
 import time
+from time import sleep
 def sendDataOverSerialPort(data):
     ser = serial.Serial(port='/dev/ttyACM0',
     baudrate=9600,
@@ -29,18 +30,18 @@ def sendDataOverSerialPort(data):
 
 
 
-sendDataOverSerialPort("4")
-sendDataOverSerialPort("1")
+sendDataOverSerialPort("5")
+
+imW = 2304 
+imH = 1100
 picam2 = Picamera2()
-camera_config = picam2.create_still_configuration(main={"format": 'XRGB8888', "size": (2304, 1296)}, lores={"size": (2304, 1296)}, display="lores")
+camera_config = picam2.create_still_configuration(main={"format": 'XRGB8888', "size": (imW, imH)}, lores={"size": (imW, imH)}, display="lores")
 
 picam2.configure(camera_config)
 #picam2.start_preview(Preview.QTGL)
 picam2.start()
 print("Start")
 time.sleep(0.5)
-imW = 2304 
-imH = 1296 
 
 MODEL_NAME = 'model1'
 GRAPH_NAME = 'detect.tflite'
@@ -105,8 +106,16 @@ if ('StatefulPartitionedCall' in outname): # This is a TF2 model
 else: # This is a TF1 model
     boxes_idx, classes_idx, scores_idx = 0, 1, 2
 
+def moveforward(amount):
+    sendDataOverSerialPort("1")
+    sleep(amount)
+    sendDataOverSerialPort("5")
+def movebackward(amount):
+    sendDataOverSerialPort("3")
+    sleep(amount)
+    sendDataOverSerialPort("5")
 
-while(True):
+def getPrediction():
     frame = picam2.capture_array()
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     frame_resized = cv2.resize(frame_rgb, (width, height))
@@ -120,19 +129,54 @@ while(True):
     interpreter.set_tensor(input_details[0]['index'],input_data)
     interpreter.invoke()
 
-    # Retrieve detection results
-    boxes = interpreter.get_tensor(output_details[boxes_idx]['index'])[0] # Bounding box coordinates of detected objects
-    classes = interpreter.get_tensor(output_details[classes_idx]['index'])[0] # Class index of detected objects
-    scores = interpreter.get_tensor(output_details[scores_idx]['index'])[0] # Confidence of detected objects
+    return {'boxes':interpreter.get_tensor(output_details[boxes_idx]['index'])[0],'score':interpreter.get_tensor(output_details[scores_idx]['index'])[0]}
 
+
+sendDataOverSerialPort("1")
+while(True):
+    prediction = getPrediction();
+    
     # Loop over all detections and draw detection box if confidence is above minimum threshold
-    for i in range(len(scores)):
-        if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0)):
+    for i in range(len(prediction['score'])):
+        if ((prediction['score'][i] > min_conf_threshold) and (prediction['score'][i] <= 1.0)):
             print("WEED!")
             sendDataOverSerialPort("5")
-            time.sleep(5)
-            sendDataOverSerialPort("1")
+            moveforward(1)
+            sleep(2)
 
+            prediction = getPrediction();
+            weedsPos = []
+            for i in range(len(prediction['score'])):
+                if ((prediction['score'][i] > min_conf_threshold) and (prediction['score'][i] <= 1.0)):
+                    move_amount =2*(prediction['boxes'][i][0] + prediction['boxes'][i][2])/2 
+                    spray_angle =str(int(1600*(1-(prediction['boxes'][i][1] + prediction['boxes'][i][3])/2)+600))
+                    weedsPos.append([spray_angle, move_amount])
+            print(weedsPos)
+            weedsPos.sort(key=lambda l: l[1])
+            print(weedsPos)
+            for i in range(len(weedsPos)):
+                sendDataOverSerialPort("8")
+                for j in weedsPos[i][0]:
+                    sendDataOverSerialPort(j)
+                sendDataOverSerialPort("q")
+                if i != len(weedsPos)-1:
+                    weedsPos[i+1][1] -= weedsPos[i][1]
+                moveforward(weedsPos[i][1])
+                print(weedsPos[i][1])
+                print(weedsPos[i][0])
+
+                sendDataOverSerialPort("6")
+                print("spraying")
+                sleep(1)
+                print("endingSpray")
+                sendDataOverSerialPort("7")
+            print("done")
+
+            moveforward(2)
+            sendDataOverSerialPort("1")
+            break
+
+            
             
             """
 
