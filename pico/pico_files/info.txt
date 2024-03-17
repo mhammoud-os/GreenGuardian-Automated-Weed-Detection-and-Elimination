@@ -1,0 +1,9 @@
+To Use first set SDK Path:
+$ export PICO_SDK_PATH=../../pico-sdk
+
+Then in build dir:
+$ cmake ..
+$ make -j4
+
+For more info visit:
+https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf
