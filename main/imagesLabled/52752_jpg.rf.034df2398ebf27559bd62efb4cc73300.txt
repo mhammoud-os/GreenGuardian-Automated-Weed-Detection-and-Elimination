@@ -1,0 +1,17 @@
+dandelion_flowers 0.7070 399 355 480 477
+dandelion_flowers 0.6328 283 1 364 107
+dandelion_flowers 0.6328 6 204 62 295
+dandelion_flowers 0.6328 68 215 139 339
+dandelion_flowers 0.6328 405 220 485 353
+dandelion_flowers 0.6094 528 286 598 406
+dandelion_flowers 0.6094 193 10 275 146
+dandelion_flowers 0.4453 368 99 429 249
+dandelion_flowers 0.4453 318 123 399 266
+dandelion_flowers 0.4180 416 452 475 544
+dandelion_flowers 0.4180 157 175 239 289
+dandelion_flowers 0.3906 308 100 369 254
+dandelion_flowers 0.3906 227 308 327 471
+dandelion_flowers 0.3672 13 85 64 166
+dandelion_flowers 0.3672 178 154 248 282
+dandelion_flowers 0.3164 431 618 497 637
+dandelion_flowers 0.2930 206 279 309 431

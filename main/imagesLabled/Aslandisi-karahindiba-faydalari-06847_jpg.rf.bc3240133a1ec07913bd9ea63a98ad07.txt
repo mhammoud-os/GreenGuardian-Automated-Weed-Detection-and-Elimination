@@ -1,0 +1,6 @@
+dandelion_flowers 0.6328 345 69 432 170
+dandelion_flowers 0.4453 377 191 458 295
+plantain 0.4453 6 31 617 584
+dandelion_flowers 0.4180 182 58 266 151
+dandelion_flowers 0.3906 340 31 431 152
+dandelion_flowers 0.2695 391 1 441 32

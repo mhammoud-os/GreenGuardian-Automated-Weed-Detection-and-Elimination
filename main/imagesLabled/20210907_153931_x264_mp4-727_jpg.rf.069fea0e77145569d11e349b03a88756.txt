@@ -1,0 +1,2 @@
+plantain 0.5000 217 381 314 497
+dandelion_flowers 0.2930 123 34 479 313
