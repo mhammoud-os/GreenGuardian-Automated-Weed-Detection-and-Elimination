@@ -14,15 +14,15 @@ pygame.font.init()
 square_size = 30
 offset = 25
 my_font = pygame.font.SysFont('Arial', int(square_size * 0.7))
-mouse = pygame.image.load("mouse.png")
+mouse = pygame.image.load("images/mouse.png")
 mouse = pygame.transform.scale(mouse, (int(square_size * 0.8), square_size))
 mouse_rect = mouse.get_rect()
-pictures = {"rock":pygame.transform.scale(pygame.image.load("rock.png"), (int(square_size*1.2), square_size*1.2)),
-            "bush":pygame.transform.scale(pygame.image.load("bush.png"), (int(square_size*1.2), square_size*1.2)),
-            "tree":pygame.transform.scale(pygame.image.load("tree.png"), (int(square_size*1.2), square_size*1.2)),
-            "fenceleftside":pygame.transform.scale(pygame.image.load("fenceleftside.png"), (int(square_size), square_size*1.1)),
-            "fencerightside":pygame.transform.scale(pygame.image.load("fencerightside.png"), (int(square_size), square_size*1.1)),
-            "fencetop":pygame.transform.scale(pygame.image.load("fencetop.png"), (int(square_size), square_size))}
+pictures = {"rock":pygame.transform.scale(pygame.image.load("images/rock.png"), (int(square_size * 1.2), square_size * 1.2)),
+            "bush":pygame.transform.scale(pygame.image.load("images/bush.png"), (int(square_size * 1.2), square_size * 1.2)),
+            "tree":pygame.transform.scale(pygame.image.load("images/tree.png"), (int(square_size * 1.2), square_size * 1.2)),
+            "fenceleftside":pygame.transform.scale(pygame.image.load("images/fenceleftside.png"), (int(square_size), square_size * 1.1)),
+            "fencerightside":pygame.transform.scale(pygame.image.load("images/fencerightside.png"), (int(square_size), square_size * 1.1)),
+            "fencetop":pygame.transform.scale(pygame.image.load("images/fencetop.png"), (int(square_size), square_size))}
 
 visited = np.array([[0, 0]])
 start_pos = [1, 1]
