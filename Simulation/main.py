@@ -182,27 +182,6 @@ def turn_to(destination):
 
 turn_to(0)
 
-"""
-points = []
-def calculate_points():
-    for y in range(len(map)):
-        for x in range(len(map[0])):
-            if map[y][x] == 0:
-                if len(map[0]) > x+1:
-                    if map[y,x+1] == 1:
-                        points.append([y,x+1])
-                if (x-1)>=0:
-                    if map[y,x-1] == 1:
-                        points.append([y,x-1])
-                if len(map) > y+1:
-                    if map[y+1,x] == 1:
-                        points.append([y+1,x])
-                if (y-1)>=0:
-                    if map[y-1,x] == 1:
-                        points.append([y-1,x])
-#calculate_points()
-"""
-
 def bfs(start, end, maze):
     bfs_visited = []
     bfs_queue = []
@@ -284,80 +263,3 @@ while len(stack) > 0 and run:
         #direction = original_dir
         if map[new_y][new_x]==1 and not check_in(new_y, new_x, visited) :
             stack.append([new_y, new_x])
-"""
-while len(stack) > 0:
-    if len(collected_maze[0]) ==  len(map[0]) and len(collected_maze) == len(map):
-        compare = collected_maze== map
-        if compare.all():
-            break
-    current = stack.pop()
-
-    y = current[0]
-    x = current[1]
-
-    #if [y, x] in double_points:
-     #   continue
-
-    for pos in bfs(mouse_pos, current, collected_maze):
-        sleep(0.02)
-        xpos = pos[1]
-        ypos = pos[0]
-        turn_to(go_to(mouse_pos, [ypos, xpos]))
-        mouse_pos = [ypos, xpos]
-        if mouse_pos in stack:
-            visited = np.append(visited, [mouse_pos], axis=0)
-            stack.remove(mouse_pos)
-        mouse_visited.append([mouse_pos[1],mouse_pos[0]])
-        draw_window(mouse_pos[1], mouse_pos[0])
-
-    for i in neighbors:
-        new_y = y + i[0]
-        new_x = x + i[1]
-        #if [new_y, new_x] in points:
-         #   double_points.append([new_y, new_x])
-
-        #points.append([new_y, new_x])
-        if map[new_y][new_x] == 1 and not check_in(new_y, new_x, visited) and [new_y, new_x] not in stack :
-            if i == [-1,0]:
-                stack.insert(-2,[new_y, new_x])
-            else:
-                stack.append([new_y, new_x])
-            stack.append([new_y, new_x])
-            original_dir = direction
-            direction = go_to(mouse_pos, [new_y, new_x])
-            colect_maze(new_x, new_y)
-            direction = original_dir
-"""
-
-
-"""
-while True:
-    draw_window(mouse_pos["x"], mouse_pos["y"])
-"""
-
-
-
-
-
-
-
-
-
-
-"""
-while True:
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            pygame.quit()
-            sys.exit()
-    draw_window(mouse_pos["x"],mouse_pos["y"])
-    if map[mouse_pos["y"], mouse_pos["x"]+1]:
-        turn_to(go_to([mouse_pos["y"],mouse_pos["x"]], [mouse_pos["y"], mouse_pos["x"]+1]))
-        mouse_pos["x"] +=1
-    else:
-        turn_to(go_to([mouse_pos["y"],mouse_pos["x"]], [mouse_pos["y"]+1, mouse_pos["x"]]))
-        mouse_pos["y"] += 1
-    colect_maze(mouse_pos["x"], mouse_pos["y"])
-    draw_maze(collected_maze, 100, square_size * len(map) + 40, square_size / 2.5)
-    sleep(0.1)
-"""
