@@ -6,7 +6,6 @@
 #include "hardware/clocks.h"
 #include "math.h"
 
-
 const int TRIG_PIN = 17;
 const int ECHO_PIN = 16;
 
@@ -17,13 +16,25 @@ int TurningPin= 14;
 
 int sprayingPin= 15;
 
-const uint encoder = 13;
+//const uint encoder = 13;
+const uint encoder_right = 6;
+const uint encoder_left = 5;
 
+const uint leftPwmPin = 8;
+const uint rightPwmPin = 9;
+//const uint right_pwm = 9;
+
+int rightPwmAmount = 0;
+int leftPwmAmount = 0;
 const uint LED_PIN = PICO_DEFAULT_LED_PIN;
 char userInput;
 const uint en2 = 7;
 const uint in1= 2;
 const uint in2= 3;
+
+//int rightside= 10;
+//int leftside= 11;
+int stopPwm = 100000;
 
 void setMillis(int servoPin, float millis)
 {
@@ -80,6 +91,62 @@ int pulseIn(int pin, int level, int timeout)
    return micros;
 }
 
+int userin(){
+	printf("Start Printing out the number, press q to stop\n");
+	userInput = getchar();
+	char numberChar[50] = ""; 
+	while(userInput != 'q'){
+		char str[2] = {userInput, '\0'};
+		printf(str);
+		strcat(numberChar, str);
+		userInput = getchar();
+	}
+	char *output;
+	int number = strtol(numberChar, &output, 10);
+	return number;
+}
+void moveMotor(int pin, int val, int encoderPin){
+	printf("Moving Forward Amount, press q to stop\n");
+	userInput = getchar();
+	char numberChar[50] = ""; 
+	while(userInput != 'q'){
+		char str[2] = {userInput, '\0'};
+		printf(str);
+		strcat(numberChar, str);
+		userInput = getchar();
+	}
+	char *output;
+	int number = strtol(numberChar, &output, 10);
+	printf("Moving forward\n");
+	printf(numberChar);
+
+	int stateCurrent = 0;
+	int stateLast = 1;
+	int stateCount = 0;
+	//int statesPerRotation = 40;
+	//int distancePerRotation = 22;
+
+
+	setMillis(leftPwmPin, stopPwm);
+	setMillis(rightPwmPin, stopPwm);
+	setMillis(pin, val);
+	gpio_put(in1, 1);
+	gpio_put(in2, 0);
+	printf("Moving Forward\n");
+	//number = round((number/distancePerRotation)*statesPerRotation);
+	while(stateCount < number){
+	    stateCurrent = gpio_get(encoderPin);
+	    if (stateCurrent != stateLast){
+		    stateLast = stateCurrent;
+		    stateCount += 1;
+	    }
+	    sleep_ms(10);
+	}
+	gpio_put(in1, 0);
+	gpio_put(in2, 0);
+	printf("Stoping \n");
+	return;
+}
 void setup() {
 	//Initialise I/O
 	stdio_init_all();
@@ -91,13 +158,19 @@ void setup() {
 
 	setServo(TurningPin, 1400);
 	setServo(sprayingPin, 1400);
+	setServo(rightPwmPin, 0);
+	setServo(leftPwmPin, 0);
 
 
-	gpio_init(encoder);
-	gpio_set_dir(encoder,GPIO_IN);
+	gpio_init(encoder_right);
+	gpio_set_dir(encoder_right,GPIO_IN);
+
+	gpio_init(encoder_left);
+	gpio_set_dir(encoder_left,GPIO_IN);
 
 	gpio_init(LED_PIN);
 	gpio_set_dir(LED_PIN, GPIO_OUT);
+
 
 	gpio_init(en2);
 	gpio_init(in1);
@@ -106,6 +179,11 @@ void setup() {
 	gpio_set_dir(en2, GPIO_OUT);
 	gpio_set_dir(in1, GPIO_OUT);
 	gpio_set_dir(in2, GPIO_OUT);
+
+	//gpio_init(rightside);
+	//gpio_set_dir(rightside, GPIO_OUT);
+	//gpo_put(rightside, 0);
+
 	gpio_put(en2, 1);
 	gpio_put(in1, 0);
 	gpio_put(in2, 0);
@@ -131,107 +209,131 @@ int main() {
             printf("Turning Right\n");
         }
         else if(userInput == '3'){
-	    gpio_put(in1, 0);
-	    gpio_put(in2, 1);
+			gpio_put(in1, 0);
+			gpio_put(in2, 1);
             printf("Moving Backward\n");
         }
         else if(userInput == '4'){
-	    setMillis(TurningPin, 1403);
+			setMillis(TurningPin, 1450);
 	   
             printf("Stoping Turn\n");
-	}
+		}
         else if(userInput == '5'){
-	    gpio_put(in1, 0);
-	    gpio_put(in2, 0);
+			gpio_put(in1, 0);
+			gpio_put(in2, 0);
             printf("Stoping \n");
         }
         else if(userInput == '6'){
-	    gpio_put(en2, 0);
-	    gpio_put(LED_PIN, 1);
+			gpio_put(en2, 0);
+			gpio_put(LED_PIN, 1);
             printf("Starting Spray \n");
         }
         else if(userInput == '7'){
-	    gpio_put(en2, 1);
-	    gpio_put(LED_PIN, 0);
-            printf("Stoping spray \n");
+			gpio_put(en2, 1);
+			gpio_put(LED_PIN, 0);
+			printf("Stoping spray \n");
         }
-	else if(userInput == '8'){
-		printf("StartPrinting out the number, press q to stop\n");
-		userInput = getchar();
-		char numberChar[50] = ""; 
-		while(userInput != 'q'){
-			char str[2] = {userInput, '\0'};
-			printf(str);
-			strcat(numberChar, str);
+		else if(userInput == '8'){
+			printf("StartPrinting out the number, press q to stop\n");
 			userInput = getchar();
+			char numberChar[50] = ""; 
+			while(userInput != 'q'){
+				char str[2] = {userInput, '\0'};
+				printf(str);
+				strcat(numberChar, str);
+				userInput = getchar();
+			}
+			char *output;
+			int number = strtol(numberChar, &output, 10);
+			setMillis(sprayingPin, number);
+			printf("Moving Sprayer\n");
+			printf(numberChar);
+			sleep_us(400000);	
+			setMillis(sprayingPin, 0);
 		}
-		char *output;
-		int number = strtol(numberChar, &output, 10);
-		setMillis(sprayingPin, number);
-		printf("Moving Sprayer\n");
-		printf(numberChar);
-	}
-	else if (userInput =='m'){
-		printf("Moving Forward Amount, press q to stop\n");
-		userInput = getchar();
-		char numberChar[50] = ""; 
-		while(userInput != 'q'){
-			char str[2] = {userInput, '\0'};
-			printf(str);
-			strcat(numberChar, str);
+		else if (userInput =='m'){
+			printf("Moving Forward Amount, press q to stop\n");
 			userInput = getchar();
+			char numberChar[50] = ""; 
+			while(userInput != 'q'){
+				char str[2] = {userInput, '\0'};
+				printf(str);
+				strcat(numberChar, str);
+				userInput = getchar();
+			}
+			char *output;
+			int number = strtol(numberChar, &output, 10);
+			printf("Moving forward\n");
+			printf(numberChar);
+
+			int stateCurrent = 0;
+			int stateLast = 1;
+			int stateCount = 0;
+			//int statesPerRotation = 40;
+			//int distancePerRotation = 22;
+
+
+			gpio_put(in1, 1);
+			gpio_put(in2, 0);
+			printf("Moving Forward\n");
+			//number = round((number/distancePerRotation)*statesPerRotation);
+			while(stateCount < number){
+				stateCurrent =gpio_get(encoder_right);
+				char str[20];
+				sprintf(str, "%d", stateCurrent);
+				printf(str);
+				if (stateCurrent != stateLast){
+					stateLast = stateCurrent;
+					stateCount += 1;
+				}
+				sleep_ms(10);
+			}
+			gpio_put(in1, 0);
+			gpio_put(in2, 0);
+			printf("Stoping \n");
+		
 		}
-		char *output;
-		int number = strtol(numberChar, &output, 10);
-		printf("Moving forward\n");
-		printf(numberChar);
+		else if (userInput =='f'){
+			long duration, distanceCm;
+			gpio_put(TRIG_PIN, 0);
+			sleep_ms(2);
+			gpio_put(TRIG_PIN, 1);
+			sleep_ms(10);
+			gpio_put(TRIG_PIN, 0);
+			duration = pulseIn(ECHO_PIN, 1, 60*220);
 
-		int stateCurrent = 0;
-		int stateLast = 1;
-		int stateCount = 0;
-		//int statesPerRotation = 40;
-		//int distancePerRotation = 22;
+			// convert the time into a distance
+			distanceCm = duration / 29.1 / 2 ;
 
-
-		gpio_put(in1, 1);
-		gpio_put(in2, 0);
-		printf("Moving Forward\n");
-		//number = round((number/distancePerRotation)*statesPerRotation);
-		while(stateCount < number){
-		    stateCurrent =gpio_get(encoder);
-		    if (stateCurrent != stateLast){
-			    stateLast = stateCurrent;
-			    stateCount += 1;
-		    }
-		    sleep_ms(10);
+			if (distanceCm <= 0){
+				printf("0\n");
+			}
+			else {
+				printf("%d\n", distanceCm);
+			}
 		}
-		gpio_put(in1, 0);
-		gpio_put(in2, 0);
-		printf("Stoping \n");
-	
-	}
-	else if (userInput =='f'){
-		long duration, distanceCm;
-		gpio_put(TRIG_PIN, 0);
-		sleep_ms(2);
-		gpio_put(TRIG_PIN, 1);
-		sleep_ms(10);
-		gpio_put(TRIG_PIN, 0);
-		duration = pulseIn(ECHO_PIN, 1, 60*220);
-
-		// convert the time into a distance
-		distanceCm = duration / 29.1 / 2 ;
-
-		if (distanceCm <= 0){
-			printf("0\n");
+		else if (userInput =='r'){
+			rightPwmAmount = userin();
+			setMillis(rightPwmPin, rightPwmAmount);
+			printf("pwm right\n");
 		}
-		else {
-			printf("%d\n", distanceCm);
+		else if (userInput =='l'){
+			leftPwmAmount = userin();
+			setMillis(leftPwmPin, leftPwmAmount);
+			//char str[20];
+			//sprintf(str, "%d", leftPwmAmount);
+			printf("pwm left\n");
+			//printf(str);
 		}
-	}
-        else{
-            printf("Invalid Input!\n");
-        }
+		else if(userInput == 'k'){
+			moveMotor(leftPwmPin, leftPwmAmount, encoder_left);
+		}
+		else if(userInput == 'e'){
+			moveMotor(rightPwmPin, rightPwmAmount, encoder_right);
+		}
+		else{
+			printf("Invalid Input!\n");
+		}
 
     }
 }
