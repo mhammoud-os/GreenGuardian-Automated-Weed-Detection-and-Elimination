@@ -14,7 +14,8 @@ from time import sleep
 import smbus
 import math
 
-# HMC5883L register addresses
+# HMC5883L Program taken from: 
+#https://how2electronics.com/interfacing-hmc5883l-magnetometer-with-raspberry-pi/
 ADDRESS = 0x1E
 CONFIG_A = 0x00
 CONFIG_B = 0x01
