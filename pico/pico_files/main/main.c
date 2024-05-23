@@ -8,6 +8,8 @@
 
 const int TRIG_PIN = 17;
 const int ECHO_PIN = 16;
+const int TRIG_PINL = 19;
+const int ECHO_PINL = 18;
 
 
 float clockDiv = 64;
@@ -156,6 +158,11 @@ void setup() {
 	gpio_set_dir(TRIG_PIN,GPIO_OUT);
 	gpio_set_dir(ECHO_PIN,GPIO_IN);
 
+	gpio_init(TRIG_PINL);
+	gpio_init(ECHO_PINL);
+	gpio_set_dir(TRIG_PINL,GPIO_OUT);
+	gpio_set_dir(ECHO_PINL,GPIO_IN);
+
 	setServo(TurningPin, 1400);
 	setServo(sprayingPin, 1400);
 	setServo(rightPwmPin, 0);
@@ -272,16 +279,15 @@ int main() {
 			//int statesPerRotation = 40;
 			//int distancePerRotation = 22;
 
-
 			gpio_put(in1, 1);
 			gpio_put(in2, 0);
 			printf("Moving Forward\n");
 			//number = round((number/distancePerRotation)*statesPerRotation);
 			while(stateCount < number){
-				stateCurrent =gpio_get(encoder_right);
-				char str[20];
-				sprintf(str, "%d", stateCurrent);
-				printf(str);
+				stateCurrent =gpio_get(encoder_left);
+				//char str[20];
+				//sprintf(str, "%d", stateCurrent);
+				//printf(str);
 				if (stateCurrent != stateLast){
 					stateLast = stateCurrent;
 					stateCount += 1;
@@ -301,6 +307,25 @@ int main() {
 			sleep_ms(10);
 			gpio_put(TRIG_PIN, 0);
 			duration = pulseIn(ECHO_PIN, 1, 60*220);
+
+			// convert the time into a distance
+			distanceCm = duration / 29.1 / 2 ;
+
+			if (distanceCm <= 0){
+				printf("0\n");
+			}
+			else {
+				printf("%d\n", distanceCm);
+			}
+		}
+		else if (userInput =='d'){
+			long duration, distanceCm;
+			gpio_put(TRIG_PINL, 0);
+			sleep_ms(2);
+			gpio_put(TRIG_PINL, 1);
+			sleep_ms(10);
+			gpio_put(TRIG_PINL, 0);
+			duration = pulseIn(ECHO_PINL, 1, 60*220);
 
 			// convert the time into a distance
 			distanceCm = duration / 29.1 / 2 ;
